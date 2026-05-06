@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chemický detektiv – Kyslíkaté deriváty uhlovodíků</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1d2e;
+    --bg3: #242840;
+    --accent: #f0c040;
+    --accent2: #4ecdc4;
+    --accent3: #ff6b6b;
+    --text: #e8e8f0;
+    --text2: #9999bb;
+    --border: rgba(255,255,255,0.08);
+    --alkohol: #4ecdc4;
+    --aldehyd: #f7b731;
+    --keton: #a29bfe;
+    --kyselina: #fd79a8;
+    --ester: #55efc4;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .mono {
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── HEADER ── */
+  #header {
+    background: linear-gradient(135deg, #0f1117 0%, #1a1d2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  #header h1 {
+    font-size: 1.4rem;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .hud {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .hud-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .hud-label {
+    font-size: 0.7rem;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hud-val {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  #lives-display {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO SCREEN ── */
+  #screen-intro {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+    text-align: center;
+  }
+
+  .badge-intro {
+    display: inline-block;
+    background: var(--bg3);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+
+  #screen-intro h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+
+  #screen-intro h2 span {
+    color: var(--accent2);
+  }
+
+  .intro-sub {
+    font-size: 1rem;
+    color: var(--text2);
+    margin-bottom: 2rem;
+  }
+
+  .story-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    margin: 0 auto 2.5rem;
+    max-width: 600px;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .story-box strong { color: var(--accent2); }
+
+  .btn-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+
+  .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #111;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* ── LEARN SCREEN ── */
+  #screen-learn {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .learn-nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  .learn-tab {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.5rem 1.1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .learn-tab:hover { border-color: var(--accent); color: var(--text); }
+  .learn-tab.active { color: #111; font-weight: 700; border-color: transparent; }
+
+  .learn-section { display: none; }
+  .learn-section.active { display: block; }
+
+  .group-image {
+    width: 75%;
+    max-height: 260px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 1.8rem;
+    border-radius: var(--radius);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  .group-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .func-group-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    border: 2px solid currentColor;
+    border-radius: var(--radius);
+    padding: 0.8rem 1.2rem;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  .func-group-badge .fg-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+
+  .func-group-badge .fg-formula {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .func-group-badge .fg-suffix {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 4px;
+  }
+
+  .group-intro {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .group-intro h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .group-intro p {
+    color: var(--text2);
+    font-size: 0.95rem;
+  }
+
+  .section-subtitle {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text2);
+    margin: 1.5rem 0 0.75rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* nasycene/nenasycene info box */
+  .info-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+
+  .info-box h4 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .info-box.green { border-left: 3px solid var(--ester); }
+  .info-box.green h4 { color: var(--ester); }
+  .info-box.yellow { border-left: 3px solid var(--aldehyd); }
+  .info-box.yellow h4 { color: var(--aldehyd); }
+
+  /* representatives grid */
+  .rep-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .rep-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    transition: border-color 0.2s;
+  }
+
+  .rep-card:hover { border-color: rgba(255,255,255,0.2); }
+
+  .rep-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .rep-formula {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .rep-desc {
+    font-size: 0.82rem;
+    color: var(--text2);
+    line-height: 1.4;
+  }
+
+  .learn-back-row {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+  }
+
+  /* ── MISSION SELECT ── */
+  #screen-missions {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  #screen-missions h2 {
+    font-size: 2rem;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+
+  #screen-missions .sub {
+    color: var(--text2);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .mission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .mission-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.25rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mission-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: currentColor;
+  }
+
+  .mission-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .mission-card.done {
+    opacity: 0.65;
+  }
+
+  .mission-num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+
+  .mission-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .mission-desc {
+    font-size: 0.82rem;
+    color: var(--text2);
+    margin-bottom: 0.75rem;
+  }
+
+  .mission-q-count {
+    font-size: 0.78rem;
+    color: var(--text2);
+  }
+
+  .mission-badge {
+    position: absolute;
+    top: 0.75rem; right: 0.75rem;
+    font-size: 1.3rem;
+  }
+
+  /* ── QUIZ SCREEN ── */
+  #screen-quiz {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .quiz-mission-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .quiz-progress {
+    font-size: 0.85rem;
+    color: var(--text2);
+  }
+
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .question-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    min-height: 80px;
+  }
+
+  .question-text {
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+
+  .answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 500px) {
+    .answers-grid { grid-template-columns: 1fr; }
+  }
+
+  .answer-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    line-height: 1.35;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: rgba(255,255,255,0.3);
+    background: var(--bg3);
+  }
+
+  .answer-btn.correct {
+    background: rgba(85,239,196,0.15);
+    border-color: var(--ester);
+    color: var(--ester);
+  }
+
+  .answer-btn.wrong {
+    background: rgba(255,107,107,0.15);
+    border-color: var(--accent3);
+    color: var(--accent3);
+  }
+
+  .answer-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    min-height: 56px;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+  }
+
+  .feedback-box.show-correct {
+    border-color: var(--ester);
+    border-left: 3px solid var(--ester);
+  }
+
+  .feedback-box.show-wrong {
+    border-color: var(--accent3);
+    border-left: 3px solid var(--accent3);
+  }
+
+  .feedback-box .fb-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .feedback-box.show-correct .fb-label { color: var(--ester); }
+  .feedback-box.show-wrong .fb-label { color: var(--accent3); }
+
+  .quiz-btn-row {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+
+  /* ── MISSION COMPLETE ── */
+  #screen-mission-complete {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  .complete-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+  }
+
+  #screen-mission-complete h2 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .earned-badge {
+    display: inline-block;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0.5rem auto 1.5rem;
+    color: #111;
+  }
+
+  .points-earned {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 2rem;
+  }
+
+  /* ── GAME OVER ── */
+  #screen-gameover {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  #screen-gameover h2 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 1rem;
+  }
+
+  #screen-gameover p {
+    color: var(--text2);
+    margin-bottom: 2rem;
+  }
+
+  /* ── FINAL SCREEN ── */
+  #screen-final {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  #screen-final h2 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .final-score {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin: 1rem 0;
+  }
+
+  .badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+
+  .badge-chip {
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #111;
+  }
+
+  /* ── COLORS per group ── */
+  .col-alkohol { color: var(--alkohol); }
+  .col-aldehyd  { color: var(--aldehyd); }
+  .col-keton    { color: var(--keton); }
+  .col-kyselina { color: var(--kyselina); }
+  .col-ester    { color: var(--ester); }
+
+  .bg-alkohol { background: var(--alkohol); }
+  .bg-aldehyd  { background: var(--aldehyd); }
+  .bg-keton    { background: var(--keton); }
+  .bg-kyselina { background: var(--kyselina); }
+  .bg-ester    { background: var(--ester); }
+
+  .border-alkohol { border-color: var(--alkohol) !important; }
+  .border-aldehyd  { border-color: var(--aldehyd) !important; }
+  .border-keton    { border-color: var(--keton) !important; }
+  .border-kyselina { border-color: var(--kyselina) !important; }
+  .border-ester    { border-color: var(--ester) !important; }
+
+  .tab-alkohol.active { background: var(--alkohol); }
+  .tab-aldehyd.active  { background: var(--aldehyd); }
+  .tab-keton.active    { background: var(--keton); }
+  .tab-kyselina.active { background: var(--kyselina); }
+  .tab-ester.active    { background: var(--ester); }
+
+  /* star animation on correct */
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .pop { animation: pop 0.3s ease; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header id="header">
+  <h1>🔬 Chemický detektiv</h1>
+  <div class="hud">
+    <div class="hud-item">
+      <span class="hud-label">Body</span>
+      <span class="hud-val" id="hud-score">0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Případy</span>
+      <span class="hud-val" id="hud-cases">0/5</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Životy</span>
+      <span class="hud-val" id="hud-lives">❤️❤️❤️❤️❤️</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Odznaky</span>
+      <span class="hud-val" id="hud-badges">0</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ INTRO ═══ -->
+<div id="screen-intro" class="screen active">
+  <div class="badge-intro">9. třída ZŠ · Organická chemie</div>
+  <h2>Chemický<br><span>detektiv</span></h2>
+  <p class="intro-sub">Kyslíkaté deriváty uhlovodíků</p>
+  <div class="story-box">
+    Na místě činu byly nalezeny <strong>neznámé chemické látky</strong>. Jejich popisky jsou nečitelné, etikety smíchané. Jako soudní chemik musíš každou sloučeninu <strong>správně identifikovat a zařadit</strong> – jinak případ zůstane nevyřešen. Prostuduj si přehled skupin, pak se pusť do pěti případů!
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="showScreen('screen-learn'); initLearn()">🧪 Prostudovat přehled</button>
+    <button class="btn btn-primary" onclick="showScreen('screen-missions')">🔍 Spustit případy →</button>
+  </div>
+</div>
+
+<!-- ═══ LEARN ═══ -->
+<div id="screen-learn" class="screen">
+  <div style="max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem">
+
+    <div class="learn-nav" id="learn-tabs">
+      <button class="learn-tab tab-alkohol" onclick="showLearnSection('alkohol',this)">Alkoholy</button>
+      <button class="learn-tab tab-aldehyd"  onclick="showLearnSection('aldehyd',this)">Aldehydy</button>
+      <button class="learn-tab tab-keton"    onclick="showLearnSection('keton',this)">Ketony</button>
+      <button class="learn-tab tab-kyselina" onclick="showLearnSection('kyselina',this)">Karboxylové kyseliny</button>
+      <button class="learn-tab tab-ester"    onclick="showLearnSection('ester',this)">Estery</button>
+    </div>
+
+    <!-- ALKOHOLY -->
+    <div class="learn-section" id="ls-alkohol">
+      <img src="images/obr_alkohol.png" alt="Alkoholy" class="group-image" onerror="this.style.display='none'">
+      <div class="group-header">
+        <div class="func-group-badge col-alkohol" style="border-color:var(--alkohol)">
+          <span class="fg-label">Funkční skupina</span>
+          <span class="fg-formula">–OH</span>
+          <span class="fg-suffix">hydroxylová</span>
+        </div>
+        <div class="group-intro">
+          <h3 class="col-alkohol">Alkoholy</h3>
+          <p>Kyslíkaté deriváty uhlovodíků obsahující hydroxylovou skupinu –OH. Název = základní uhlovodík + přípona <strong>-ol</strong>.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2)">V přírodě běžně se vyskytující látky (mentol v mátě). Kapalné nebo pevné skupenství. Nižší alkoholy se mísí s vodou.</p>
+        </div>
+      </div>
+
+      <div class="section-subtitle">Hlavní zástupci</div>
+      <div class="rep-grid">
+        <div class="rep-card">
+          <div class="rep-name col-alkohol">Methanol</div>
+          <div class="rep-formula">CH₃OH</div>
+          <div class="rep-desc">Toxická kapalina. Požití způsobuje poškození zrakového nervu → oslepnutí. Protijed: ethanol.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-alkohol">Ethanol</div>
+          <div class="rep-formula">C₂H₅OH</div>
+          <div class="rep-desc">Alkoholické nápoje, dezinfekce, farmaceutický průmysl. Vliv na nervovou soustavu, závislost.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-alkohol">Ethylenglykol</div>
+          <div class="rep-formula">C₂H₄(OH)₂</div>
+          <div class="rep-desc">Ethan-1,2-diol. 2× –OH skupina. Prudce jedovatá kapalina. Fridex (nemrznoucí směs), výroba plastů.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-alkohol">Glycerol</div>
+          <div class="rep-formula">C₃H₅(OH)₃</div>
+          <div class="rep-desc">3× –OH skupina. Bezbarvá, sladká kapalina. Kosmetika, léčiva (masti), součást tuků.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-alkohol">Fenol</div>
+          <div class="rep-formula">C₆H₅OH</div>
+          <div class="rep-desc">–OH na benzénovém kruhu. Dezinfekční prostředek (historicky). Jedovatý.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALDEHYDY -->
+    <div class="learn-section" id="ls-aldehyd">
+      <img src="images/obr_aldehyd.png" alt="Aldehydy" class="group-image" onerror="this.style.display='none'">
+      <div class="group-header">
+        <div class="func-group-badge col-aldehyd" style="border-color:var(--aldehyd)">
+          <span class="fg-label">Funkční skupina</span>
+          <span class="fg-formula">–CHO</span>
+          <span class="fg-suffix">aldehydická</span>
+        </div>
+        <div class="group-intro">
+          <h3 class="col-aldehyd">Aldehydy</h3>
+          <p>Karbonylová skupina C=O se nachází na <strong>konci řetězce</strong> (vázána na H). Název = základní uhlovodík + přípona <strong>-al</strong>.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2)">Reaktivní látky – snadno se oxidují na karboxylové kyseliny.</p>
+        </div>
+      </div>
+
+      <div class="section-subtitle">Hlavní zástupci</div>
+      <div class="rep-grid">
+        <div class="rep-card">
+          <div class="rep-name col-aldehyd">Methanal</div>
+          <div class="rep-formula">HCHO</div>
+          <div class="rep-desc">Lidový název: <em>formaldehyd</em>. Za norm. podmínek plyn. Vodný roztok = formalín (konzervace biologických preparátů).</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-aldehyd">Ethanal</div>
+          <div class="rep-formula">CH₃CHO</div>
+          <div class="rep-desc">Lidový název: <em>acetaldehyd</em>. Vzniká oxidací ethanolu. Meziprodukt při výrobě kyseliny octové.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KETONY -->
+    <div class="learn-section" id="ls-keton">
+      <img src="images/obr_keton.png" alt="Ketony" class="group-image" onerror="this.style.display='none'">
+      <div class="group-header">
+        <div class="func-group-badge col-keton" style="border-color:var(--keton)">
+          <span class="fg-label">Funkční skupina</span>
+          <span class="fg-formula">C=O</span>
+          <span class="fg-suffix">karbonylová (uprostřed)</span>
+        </div>
+        <div class="group-intro">
+          <h3 class="col-keton">Ketony</h3>
+          <p>Karbonylová skupina C=O se nachází <strong>uprostřed řetězce</strong> (vázána na 2 uhlíky). Název = základní uhlovodík + přípona <strong>-on</strong>.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2)">Na rozdíl od aldehydů nemají H atom u karbonylové skupiny → méně reaktivní.</p>
+        </div>
+      </div>
+
+      <div class="section-subtitle">Hlavní zástupce</div>
+      <div class="rep-grid">
+        <div class="rep-card">
+          <div class="rep-name col-keton">Aceton (propanon)</div>
+          <div class="rep-formula">CH₃-(C=O)-CH₃</div>
+          <div class="rep-desc">Těkavá kapalina. Výborné rozpouštědlo – laky na nehty, plasty, organické sloučeniny. Sumární vzorec C₃H₆O.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KARBOXYLOVÉ KYSELINY -->
+    <div class="learn-section" id="ls-kyselina">
+      <img src="images/obr_karbKys.png" alt="Karboxylové kyseliny" class="group-image" onerror="this.style.display='none'">
+      <div class="group-header">
+        <div class="func-group-badge col-kyselina" style="border-color:var(--kyselina)">
+          <span class="fg-label">Funkční skupina</span>
+          <span class="fg-formula">–COOH</span>
+          <span class="fg-suffix">karboxylová</span>
+        </div>
+        <div class="group-intro">
+          <h3 class="col-kyselina">Karboxylové kyseliny</h3>
+          <p>Název = uhlovodík + <strong>-ová kyselina</strong>. Mohou odštěpit proton (kyseliny). Kratší řetězec = silnější kyselina.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2)">Kyseliny s krátkým řetězcem jsou žíravé a štiplavě zapáchají. S dlouhým řetězcem jsou základem tuků.</p>
+        </div>
+      </div>
+
+      <div class="info-box green" style="margin-bottom:0.5rem">
+        <h4>Nasycené mastné kyseliny</h4>
+        <p>Obsahují pouze jednoduché vazby C–C. Tuhý skupenský stav (živočišné tuky). Příklady: <strong>kyselina palmitová</strong> (C₁₆), <strong>stearová</strong> (C₁₈).</p>
+      </div>
+      <div class="info-box yellow">
+        <h4>Nenasycené mastné kyseliny</h4>
+        <p>Obsahují jednu nebo více dvojných vazeb C=C. Kapalný stav (rostlinné oleje). Příklad: <strong>kyselina olejová</strong> (C₁₈, 1 dvojná vazba) – v olivovém oleji.</p>
+      </div>
+
+      <div class="section-subtitle">Hlavní zástupci</div>
+      <div class="rep-grid">
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina methanová</div>
+          <div class="rep-formula">HCOOH</div>
+          <div class="rep-desc">Triviální název: <em>kyselina mravenčí</em>. Dezinfekce, výroba dalších sloučenin. Žahání mravenců.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina ethanová</div>
+          <div class="rep-formula">CH₃COOH</div>
+          <div class="rep-desc">Triviální název: <em>kyselina octová</em>. Ocet (8% roztok). Výroba z ethanolu octovým kvašením.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina butanová</div>
+          <div class="rep-formula">CH₃CH₂CH₂COOH</div>
+          <div class="rep-desc">Triviální název: <em>kyselina máselná</em>. Intenzivní zápach – žluklé máslo, pot, zvratky.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina citronová</div>
+          <div class="rep-formula">C₆H₈O₇</div>
+          <div class="rep-desc">Bílá krystalická látka. V citrusových plodech. Konzervant E330. Výroba kvašením cukrů.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina benzoová</div>
+          <div class="rep-formula">C₆H₅COOH</div>
+          <div class="rep-desc">Aromatická kyselina. Konzervant E210. Může způsobovat hyperaktivitu.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina šťavelová</div>
+          <div class="rep-formula">HOOC–COOH</div>
+          <div class="rep-desc">Ve šťovíku a špenátu. Nejjednodušší dikarboxylová kyselina.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina stearová</div>
+          <div class="rep-formula">C₁₇H₃₅COOH</div>
+          <div class="rep-desc">Nasycená mastná kyselina (C18). Součást živočišných tuků.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina olejová</div>
+          <div class="rep-formula">C₁₇H₃₃COOH</div>
+          <div class="rep-desc">Nenasycená mastná kyselina (C18, 1 dvojná vazba). V olivovém oleji.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-kyselina">Kyselina palmitová</div>
+          <div class="rep-formula">C₁₅H₃₁COOH</div>
+          <div class="rep-desc">Nasycená mastná kyselina (C16). V palmovém oleji, živočišných tucích.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTERY -->
+    <div class="learn-section" id="ls-ester">
+      <img src="images/obr_ester.png" alt="Estery" class="group-image" onerror="this.style.display='none'">
+      <div class="group-header">
+        <div class="func-group-badge col-ester" style="border-color:var(--ester)">
+          <span class="fg-label">Funkční skupina</span>
+          <span class="fg-formula">–COO–</span>
+          <span class="fg-suffix">esterová</span>
+        </div>
+        <div class="group-intro">
+          <h3 class="col-ester">Estery</h3>
+          <p>Vznikají <strong>esterifikací</strong> = reakce karboxylové kyseliny + alkoholu → ester + voda. Název = <strong>alkyl-ester kyseliny ...-ové</strong>.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text2)">Estery s krátkými molekulami mají výrazné senzorické vlastnosti (vůně, aroma). Tuky a oleje jsou estery glycerolu.</p>
+        </div>
+      </div>
+
+      <div class="section-subtitle">Hlavní zástupci</div>
+      <div class="rep-grid">
+        <div class="rep-card">
+          <div class="rep-name col-ester">Ethylester kyseliny mravenčí</div>
+          <div class="rep-formula">HCOOC₂H₅</div>
+          <div class="rep-desc">Rumové aroma. Vzniká z ethanolu + kyseliny methanové.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-ester">Pentylester kyseliny octové</div>
+          <div class="rep-formula">CH₃COO(CH₂)₄CH₃</div>
+          <div class="rep-desc">Vůně banánu.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-ester">Ethylester kyseliny butanové</div>
+          <div class="rep-formula">CH₃CH₂CH₂COOC₂H₅</div>
+          <div class="rep-desc">Vůně ananasu.</div>
+        </div>
+        <div class="rep-card">
+          <div class="rep-name col-ester">Tuky a oleje</div>
+          <div class="rep-formula">estery glycerolu</div>
+          <div class="rep-desc">Estery glycerolu a mastných kyselin. Nasycené = tuhé tuky, nenasycené = oleje.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="learn-back-row">
+      <button class="btn btn-secondary" onclick="showScreen('screen-intro')">← Zpět</button>
+      <button class="btn btn-primary" onclick="showScreen('screen-missions')">🔍 Na případy →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MISSIONS ═══ -->
+<div id="screen-missions" class="screen">
+  <div style="max-width:860px;margin:0 auto;padding:2rem 1.5rem 4rem">
+    <h2>Výběr případu</h2>
+    <p class="sub">Vyber případ a prokáže své znalosti – každý případ se věnuje jiné skupině sloučenin.</p>
+    <div class="mission-grid" id="mission-grid"></div>
+    <div style="margin-top:1.5rem">
+      <button class="btn btn-secondary" onclick="showScreen('screen-intro')">← Zpět</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUIZ ═══ -->
+<div id="screen-quiz" class="screen">
+  <div class="quiz-meta">
+    <span class="quiz-mission-name" id="quiz-mission-name"></span>
+    <span class="quiz-progress" id="quiz-progress"></span>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="quiz-progress-bar"></div>
+  </div>
+  <div class="question-box">
+    <div class="question-text" id="question-text"></div>
+  </div>
+  <div class="answers-grid" id="answers-grid"></div>
+  <div class="feedback-box" id="feedback-box"></div>
+  <div class="quiz-btn-row">
+    <button class="btn btn-secondary" onclick="showScreen('screen-missions')" id="btn-exit">Ukončit případ</button>
+    <button class="btn btn-primary" id="btn-next" style="display:none" onclick="nextQuestion()">Další otázka →</button>
+  </div>
+</div>
+
+<!-- ═══ MISSION COMPLETE ═══ -->
+<div id="screen-mission-complete" class="screen">
+  <div class="complete-icon">🏆</div>
+  <h2>Případ vyřešen!</h2>
+  <div id="mc-badge" class="earned-badge"></div>
+  <p id="mc-text" style="color:var(--text2);margin-bottom:1rem"></p>
+  <div class="points-earned" id="mc-points"></div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="showScreen('screen-missions')">← Další případ</button>
+    <button class="btn btn-primary" id="mc-all-done" onclick="showScreen('screen-final')" style="display:none">🏁 Zobrazit výsledky</button>
+  </div>
+</div>
+
+<!-- ═══ GAME OVER ═══ -->
+<div id="screen-gameover" class="screen">
+  <div style="font-size:3.5rem;margin-bottom:1rem">💀</div>
+  <h2>Případ nevyřešen</h2>
+  <p>Došly ti životy. Prostuduj si přehled a zkus to znovu!</p>
+  <div class="btn-row" style="justify-content:center">
+    <button class="btn btn-secondary" onclick="showScreen('screen-learn'); initLearn()">🧪 Přehled</button>
+    <button class="btn btn-primary" onclick="retryMission()">🔄 Zkusit znovu</button>
+  </div>
+</div>
+
+<!-- ═══ FINAL ═══ -->
+<div id="screen-final" class="screen">
+  <div style="font-size:3.5rem;margin-bottom:1rem">🎓</div>
+  <h2>Detektiv roku!</h2>
+  <p style="color:var(--text2)">Všechny případy vyřešeny. Celkové skóre:</p>
+  <div class="final-score" id="final-score"></div>
+  <div class="badges-row" id="final-badges"></div>
+  <button class="btn btn-primary" onclick="resetGame()">🔄 Hrát znovu</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+const MISSIONS = [
+  {
+    id: 'alkohol',
+    title: 'Alkoholy',
+    desc: 'Identifikuj látky s hydroxylovou skupinou',
+    color: 'alkohol',
+    badge: '🍶 Mistr alkoholů',
+    questions: [
+      { q: 'Která funkční skupina je charakteristická pro alkoholy?', a: ['–OH','–CHO','–COOH','C=O'], correct: 0, exp: 'Alkoholy obsahují hydroxylovou skupinu –OH navázanou na uhlíkový řetězec.' },
+      { q: 'Jak se tvoří název alkoholu?', a: ['přípona -ol','přípona -al','přípona -ová','přípona -on'], correct: 0, exp: 'Název alkoholu = název základního uhlovodíku + přípona -ol (ethan → ethanol).' },
+      { q: 'Který alkohol je smrtelně jedovatý již v malých dávkách?', a: ['methanol','ethanol','glycerol','fenol'], correct: 0, exp: 'Methanol (CH₃OH) – produkty jeho přeměny v těle poškozují zrakový nerv a způsobují oslepnutí.' },
+      { q: 'Ethanol je obsažen v:', a: ['alkoholických nápojích','octu','mýdle','benzínu'], correct: 0, exp: 'Ethanol vzniká alkoholovým kvašením kvasinkami a je základem alkoholických nápojů.' },
+      { q: 'Ethylenglykol se používá jako:', a: ['nemrznoucí směs (fridex)','léčivo','barvivo','kyselina'], correct: 0, exp: 'Ethylenglykol (ethan-1,2-diol) je prudce jedovatá kapalina využívaná jako nemrznoucí směs.' },
+      { q: 'Glycerol má kolik –OH skupin?', a: ['3','1','2','4'], correct: 0, exp: 'Glycerol (C₃H₅(OH)₃) je trialkohol – obsahuje tři hydroxylové skupiny.' },
+      { q: 'Glycerol se využívá v:', a: ['kosmetice a lécích','pohonných hmotách','výbušninách','barvivech'], correct: 0, exp: 'Glycerol je součástí kosmetiky a mastí díky hydratačním vlastnostem. Též součást tuků.' },
+      { q: 'Fenol se řadí mezi alkoholy, protože:', a: ['obsahuje –OH skupinu','obsahuje benzénový kruh','je jedovatý','je kapalný'], correct: 0, exp: 'Fenol (C₆H₅OH) má –OH skupinu navázanou na benzénový kruh – proto patří mezi aromatické alkoholy.' },
+      { q: 'Který z těchto vzorců patří ethanolu?', a: ['C₂H₅OH','CH₃OH','C₃H₅(OH)₃','C₆H₅OH'], correct: 0, exp: 'C₂H₅OH je ethanol. CH₃OH je methanol, C₃H₅(OH)₃ glycerol, C₆H₅OH fenol.' },
+    ]
+  },
+  {
+    id: 'aldehyd',
+    title: 'Aldehydy',
+    desc: 'Urči látky s aldehydickou skupinou',
+    color: 'aldehyd',
+    badge: '🔬 Expert na aldehydy',
+    questions: [
+      { q: 'Která funkční skupina je charakteristická pro aldehydy?', a: ['–CHO','–OH','–COOH','C=O uprostřed řetězce'], correct: 0, exp: 'Aldehydy mají skupinu –CHO na konci řetězce (karbonylový uhlík vázaný na H).' },
+      { q: 'Jak se tvoří název aldehydu?', a: ['přípona -al','přípona -ol','přípona -on','přípona -ová'], correct: 0, exp: 'Název aldehydu = název základního uhlovodíku + přípona -al (ethan → ethanal).' },
+      { q: 'Jak se lidově nazývá methanal?', a: ['formaldehyd','acetaldehyd','aceton','formalín'], correct: 0, exp: 'Methanal (HCHO) má triviální název formaldehyd. Formalín je až jeho vodný roztok.' },
+      { q: 'Formalín je:', a: ['vodný roztok methanalu','čistý methanal','kyselina','ester'], correct: 0, exp: 'Formalín je přibližně 37–40% vodný roztok methanalu (formaldehydu).' },
+      { q: 'K čemu se formalín používá?', a: ['konzervace biologických preparátů','výroba léků','výroba plastů','čištění kovů'], correct: 0, exp: 'Formalín se tradičně používá k fixaci a konzervaci biologických vzorků (pitevny, muzea).' },
+      { q: 'Jak se lidově nazývá ethanal?', a: ['acetaldehyd','formaldehyd','aceton','ethanol'], correct: 0, exp: 'Ethanal (CH₃CHO) má triviální název acetaldehyd. Vzniká oxidací ethanolu.' },
+      { q: 'Ethanal vzniká například:', a: ['oxidací ethanolu','redukcí methanolu','reakcí kyseliny s alkoholem','spalováním'], correct: 0, exp: 'Ethanal je meziprodukt při metabolismu ethanolu v těle i při průmyslové výrobě kyseliny octové.' },
+      { q: 'Aldehydy jsou obecně:', a: ['reaktivní látky, snadno se oxidují','stabilní a nereaktivní','zásadité','soli'], correct: 0, exp: 'Aldehydy se snadno oxidují na karboxylové kyseliny – proto jsou reaktivnější než ketony.' },
+      { q: 'Methanal je za normálních podmínek:', a: ['plyn','kapalina','pevná látka','gel'], correct: 0, exp: 'Methanal (formaldehyd) je za pokojové teploty bezbarvý plyn s ostrým zápachem.' },
+    ]
+  },
+  {
+    id: 'keton',
+    title: 'Ketony',
+    desc: 'Odhal látky s karbonylovou skupinou uprostřed',
+    color: 'keton',
+    badge: '⚗️ Znalec ketonů',
+    questions: [
+      { q: 'Kde se nachází funkční skupina C=O u ketonů?', a: ['uprostřed řetězce','na konci řetězce','na benzénovém kruhu','na dusíku'], correct: 0, exp: 'U ketonů je karbonylová skupina C=O vázána na dva uhlíkové atomy – proto je uprostřed řetězce.' },
+      { q: 'Jak se tvoří název ketonu?', a: ['přípona -on','přípona -al','přípona -ol','přípona -ová'], correct: 0, exp: 'Název ketonu = název základního uhlovodíku + přípona -on (propan → propanon).' },
+      { q: 'Jak se systematicky nazývá aceton?', a: ['propanon','propanal','propanol','propanová kyselina'], correct: 0, exp: 'Aceton je triviální název. Systematický název je propanon – keton se třemi uhlíky.' },
+      { q: 'Aceton se používá jako:', a: ['rozpouštědlo','palivo','léčivo','kyselina'], correct: 0, exp: 'Aceton je vynikající organické rozpouštědlo – rozpouští laky, plasty, pryskyřice.' },
+      { q: 'Aceton rozpouští:', a: ['laky na nehty a plasty','kovy','sklo','tuky ve vodě'], correct: 0, exp: 'Aceton je nepolární rozpouštědlo vhodné pro organické látky – laky, smoly, plasty.' },
+      { q: 'Aceton je za normálních podmínek:', a: ['těkavá kapalina','pevná látka','plyn','viskózní olej'], correct: 0, exp: 'Aceton (propanon) je bezbarvá, těkavá kapalina s charakteristickým zápachem.' },
+      { q: 'Ketony na rozdíl od aldehydů:', a: ['nemají H atom u karbonylové skupiny','jsou méně reaktivní','jsou vždy tuhé','neobsahují kyslík'], correct: 0, exp: 'U ketonů je C=O vázán na 2 uhlíky (žádný H), u aldehydů na 1 uhlík a 1 vodík – proto jsou aldehydy reaktivnější.' },
+      { q: 'Propanon má sumární vzorec:', a: ['C₃H₆O','C₃H₈O','C₂H₄O','C₄H₈O'], correct: 0, exp: 'Propanon CH₃-CO-CH₃: 3C, 6H, 1O → C₃H₆O.' },
+    ]
+  },
+  {
+    id: 'kyselina',
+    title: 'Karboxylové kyseliny',
+    desc: 'Rozluštij kyseliny s karboxylovou skupinou',
+    color: 'kyselina',
+    badge: '🍋 Mistr kyselin',
+    questions: [
+      { q: 'Která funkční skupina je charakteristická pro karboxylové kyseliny?', a: ['–COOH','–OH','–CHO','C=O uprostřed'], correct: 0, exp: 'Karboxylová skupina –COOH je kombinací karbonylové (C=O) a hydroxylové (–OH) skupiny.' },
+      { q: 'Jak se tvoří název karboxylové kyseliny?', a: ['kyselina + přípona -ová','kyselina + přípona -al','přípona -ol','přípona -on'], correct: 0, exp: 'Název = „kyselina" + název uhlovodíku + přípona -ová (ethan → kyselina ethanová).' },
+      { q: 'Kyselina ethanová se lidově nazývá:', a: ['octová','mravenčí','máselná','citronová'], correct: 0, exp: 'Kyselina ethanová (CH₃COOH) = kyselina octová. Je obsažena v octu.' },
+      { q: 'Kyselina methanová se lidově nazývá:', a: ['mravenčí','octová','máselná','benzoová'], correct: 0, exp: 'Kyselina methanová (HCOOH) = kyselina mravenčí. Produkují ji mravenci při žahnutí.' },
+      { q: 'Kyselina butanová zapáchá – kde se přirozeně vyskytuje?', a: ['zkažené máslo','citróny','jablka','mravenci'], correct: 0, exp: 'Kyselina butanová (máselná) způsobuje zápach žluklého másla, potu a zvratků.' },
+      { q: 'Kyselina citronová se nachází v:', a: ['citrusových plodech','octu','žahavých rostlinách','tuku'], correct: 0, exp: 'Kyselina citronová (E330) je přirozeně přítomna v citrusových plodech a slouží jako konzervant.' },
+      { q: 'Kyselina benzoová se používá jako:', a: ['konzervant potravin','léčivo','palivo','hnojivo'], correct: 0, exp: 'Kyselina benzoová má kód E210 a je běžným konzervantem. Při větším množství může způsobovat hyperaktivitu.' },
+      { q: 'Kyselina šťavelová se nachází v:', a: ['šťovíku a špenátu','medu','mléce','petroleji'], correct: 0, exp: 'Kyselina šťavelová (HOOC-COOH) se přirozeně vyskytuje ve šťovíku, špenátu a reveně.' },
+      { q: 'Kyseliny stearová, palmitová a olejová jsou součástí:', a: ['tuků a olejů','cukrů','bílkovin','minerálů'], correct: 0, exp: 'Tyto mastné kyseliny tvoří základ tuků (estery s glycerolem). Stearová a palmitová jsou nasycené, olejová nenasycená.' },
+      { q: 'Kyselina stearová je:', a: ['nasycená mastná kyselina','nenasycená kyselina','aromatická kyselina','anorganická kyselina'], correct: 0, exp: 'Kyselina stearová (C₁₇H₃₅COOH, C18) je nasycená – nemá dvojné vazby, je součástí živočišných tuků.' },
+      { q: 'Kyselina olejová je:', a: ['nenasycená mastná kyselina','nasycená kyselina','aromatická kyselina','minerální kyselina'], correct: 0, exp: 'Kyselina olejová (C₁₇H₃₃COOH) je nenasycená – má jednu dvojnou vazbu C=C. Hlavní složka olivového oleje.' },
+      { q: 'Která z těchto kyselin je aromatická?', a: ['benzoová','octová','mravenčí','máselná'], correct: 0, exp: 'Kyselina benzoová (C₆H₅COOH) je aromatická – obsahuje benzenový kruh.' },
+    ]
+  },
+  {
+    id: 'ester',
+    title: 'Estery',
+    desc: 'Dej dohromady kyseliny a alkoholy',
+    color: 'ester',
+    badge: '🌸 Expert na estery',
+    questions: [
+      { q: 'Estery vznikají reakcí:', a: ['kyseliny s alkoholem','dvou kyselin','dvou alkoholů','aldehydu s ketonem'], correct: 0, exp: 'Esterifikace: karboxylová kyselina + alkohol → ester + voda. Reakce je vratná.' },
+      { q: 'Jak se jmenuje ester vzniklý z ethanolu a kyseliny mravenčí?', a: ['ethylester kyseliny mravenčí','methylester kyseliny ethanové','ethylester kyseliny ethanové','methylester kyseliny mravenčí'], correct: 0, exp: 'Ethanol dává „ethyl-", kyselina methanová (mravenčí) dává „kyseliny mravenčí" → ethylester kyseliny mravenčí.' },
+      { q: 'Estery jsou obecně známé svou:', a: ['příjemnou vůní','jedovatostí','kyselou chutí','hořlavostí'], correct: 0, exp: 'Estery s krátkými uhlovodíkovými řetězci mají výrazné ovocné vůně – proto se nacházejí ve zralých plodech.' },
+      { q: 'Vůně ovoce a květin je způsobena:', a: ['estery','alkoholy','aldehydy','kyselinami'], correct: 0, exp: 'Vůně banánu, ananasu, jablek – to vše jsou estery. Pentylester kyseliny octové = vůně banánu.' },
+      { q: 'Tuky jsou chemicky:', a: ['estery glycerolu a mastných kyselin','estery ethanolu a octové kyseliny','soli karboxylových kyselin','polymery alkoholů'], correct: 0, exp: 'Tuky = triestery glycerolu (C₃H₅(OH)₃) s mastnými kyselinami. Nasycené mastné kyseliny = tuhé tuky.' },
+      { q: 'Při vzniku esteru se jako vedlejší produkt uvolňuje:', a: ['voda','oxid uhličitý','vodík','kyslík'], correct: 0, exp: 'Esterifikace: R-COOH + HO-R\' → R-COO-R\' + H₂O. Odštěpí se vodík z –OH alkoholu a –OH kyseliny.' },
+      { q: 'Estery se používají jako:', a: ['příchutě, parfémy, rozpouštědla','léčiva','hnojiva','výbušniny'], correct: 0, exp: 'Estery mají uplatnění jako potravinářská aroma, složky parfémů a organická rozpouštědla.' },
+    ]
+  }
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let state = {
+  score: 0,
+  lives: 5,
+  badges: [],
+  completedMissions: new Set(),
+  currentMission: null,
+  currentQ: 0,
+  answered: false,
+  missionPoints: 0,
+  failedMission: null
+};
+
+/* ══════════════════════════════════════════
+   SCREENS
+══════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ══════════════════════════════════════════
+   LEARN
+══════════════════════════════════════════ */
+function initLearn() {
+  showLearnSection('alkohol', document.querySelector('.learn-tab'));
+}
+
+function showLearnSection(id, btn) {
+  document.querySelectorAll('.learn-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('ls-' + id).classList.add('active');
+  document.querySelectorAll('.learn-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   MISSIONS
+══════════════════════════════════════════ */
+function renderMissions() {
+  const grid = document.getElementById('mission-grid');
+  grid.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const done = state.completedMissions.has(m.id);
+    const card = document.createElement('div');
+    card.className = 'mission-card border-' + m.color + (done ? ' done' : '');
+    card.style.color = 'var(--' + m.color + ')';
+    card.innerHTML = `
+      ${done ? '<div class="mission-badge">✅</div>' : ''}
+      <div class="mission-num">Případ ${i+1}</div>
+      <div class="mission-title">${m.title}</div>
+      <div class="mission-desc">${m.desc}</div>
+      <div class="mission-q-count">${m.questions.length} otázek</div>
+    `;
+    card.addEventListener('click', () => startMission(m));
+    grid.appendChild(card);
+  });
+}
+
+function startMission(mission) {
+  state.currentMission = mission;
+  state.currentQ = 0;
+  state.answered = false;
+  state.missionPoints = 0;
+  showScreen('screen-quiz');
+  renderQuestion();
+  updateHUD();
+}
+
+function retryMission() {
+  if (state.failedMission) {
+    state.lives = 5;
+    updateHUD();
+    startMission(state.failedMission);
+  }
+}
+
+/* ══════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════ */
+function renderQuestion() {
+  const m = state.currentMission;
+  const q = m.questions[state.currentQ];
+  const total = m.questions.length;
+
+  document.getElementById('quiz-mission-name').textContent = 'Případ: ' + m.title;
+  document.getElementById('quiz-mission-name').className = 'quiz-mission-name col-' + m.color;
+  document.getElementById('quiz-progress').textContent = `Otázka ${state.currentQ + 1} / ${total}`;
+
+  const pct = ((state.currentQ) / total * 100);
+  const bar = document.getElementById('quiz-progress-bar');
+  bar.style.width = pct + '%';
+  bar.style.background = 'var(--' + m.color + ')';
+
+  document.getElementById('question-text').textContent = q.q;
+
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+  q.a.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = ans;
+    btn.addEventListener('click', () => answerQuestion(i));
+    grid.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  fb.innerHTML = '';
+
+  document.getElementById('btn-next').style.display = 'none';
+  state.answered = false;
+}
+
+function answerQuestion(idx) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const m = state.currentMission;
+  const q = m.questions[state.currentQ];
+  const correct = q.correct === idx;
+
+  const btns = document.querySelectorAll('.answer-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.correct) b.classList.add('correct');
+    else if (i === idx && !correct) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('feedback-box');
+  if (correct) {
+    const pts = 20;
+    state.score += pts;
+    state.missionPoints += pts;
+    fb.className = 'feedback-box show-correct';
+    fb.innerHTML = `<div class="fb-label">✓ Správně! +${pts} bodů</div><div>${q.exp}</div>`;
+  } else {
+    state.lives--;
+    fb.className = 'feedback-box show-wrong';
+    fb.innerHTML = `<div class="fb-label">✗ Chyba – –1 život</div><div>${q.exp}</div>`;
+  }
+
+  updateHUD();
+
+  if (state.lives <= 0) {
+    state.failedMission = m;
+    setTimeout(() => showScreen('screen-gameover'), 1400);
+    return;
+  }
+
+  const isLast = state.currentQ >= m.questions.length - 1;
+  if (isLast) {
+    setTimeout(() => completeMission(), 1200);
+  } else {
+    document.getElementById('btn-next').style.display = 'inline-block';
+  }
+}
+
+function nextQuestion() {
+  state.currentQ++;
+  renderQuestion();
+}
+
+function completeMission() {
+  const m = state.currentMission;
+  state.completedMissions.add(m.id);
+  state.badges.push(m.badge);
+  updateHUD();
+
+  document.getElementById('mc-badge').textContent = m.badge;
+  document.getElementById('mc-badge').className = 'earned-badge bg-' + m.color;
+  document.getElementById('mc-text').textContent = 'Případ "' + m.title + '" úspěšně vyřešen!';
+  document.getElementById('mc-points').textContent = '+' + state.missionPoints + ' bodů';
+
+  const allDone = state.completedMissions.size >= MISSIONS.length;
+  document.getElementById('mc-all-done').style.display = allDone ? 'inline-block' : 'none';
+
+  showScreen('screen-mission-complete');
+}
+
+/* ══════════════════════════════════════════
+   HUD
+══════════════════════════════════════════ */
+function updateHUD() {
+  document.getElementById('hud-score').textContent = state.score;
+  document.getElementById('hud-cases').textContent = state.completedMissions.size + '/5';
+  document.getElementById('hud-badges').textContent = state.badges.length;
+
+  const hearts = '❤️'.repeat(Math.max(0, state.lives)) + '🖤'.repeat(Math.max(0, 5 - state.lives));
+  document.getElementById('hud-lives').textContent = hearts;
+}
+
+/* ══════════════════════════════════════════
+   FINAL
+══════════════════════════════════════════ */
+function showFinal() {
+  document.getElementById('final-score').textContent = state.score + ' bodů';
+  const br = document.getElementById('final-badges');
+  br.innerHTML = '';
+  state.badges.forEach((b, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'badge-chip bg-' + MISSIONS[i % MISSIONS.length].color;
+    chip.textContent = b;
+    br.appendChild(chip);
+  });
+}
+
+function resetGame() {
+  state = { score: 0, lives: 5, badges: [], completedMissions: new Set(),
+            currentMission: null, currentQ: 0, answered: false, missionPoints: 0, failedMission: null };
+  updateHUD();
+  showScreen('screen-intro');
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+renderMissions();
+updateHUD();
+
+// keep missions up to date when returning
+document.getElementById('screen-missions').addEventListener('transitionend', renderMissions);
+const obs = new MutationObserver(() => {
+  if (document.getElementById('screen-missions').classList.contains('active')) renderMissions();
+});
+obs.observe(document.getElementById('screen-missions'), { attributeFilter: ['class'] });
+
+// init learn tabs
+document.querySelector('.learn-tab').classList.add('active');
+document.querySelector('.learn-section').classList.add('active');
+
+// final screen trigger
+document.getElementById('screen-final').addEventListener('transitionend', showFinal);
+const obs2 = new MutationObserver(() => {
+  if (document.getElementById('screen-final').classList.contains('active')) showFinal();
+});
+obs2.observe(document.getElementById('screen-final'), { attributeFilter: ['class'] });
+</script>
+</body>
+</html>
